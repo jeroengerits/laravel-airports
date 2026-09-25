@@ -13,7 +13,7 @@ class SyncAirportsAction
 
     public function execute(): int
     {
-        $stream = tmpfile();
+        $stream = $this->createTemporaryFile();
 
         if ($stream === false) {
             throw new RuntimeException('Unable to create a temporary CSV file.');
@@ -30,5 +30,11 @@ class SyncAirportsAction
         } finally {
             fclose($stream);
         }
+    }
+
+    /** @return resource|false */
+    protected function createTemporaryFile()
+    {
+        return tmpfile();
     }
 }

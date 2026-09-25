@@ -15,6 +15,25 @@ beforeEach(function (): void {
     Http::preventStrayRequests();
 });
 
+it('fails before downloading or importing when a temporary file cannot be created', function (): void {
+    Http::fake();
+    $importAirports = $this->mock(ImportAirportsAction::class);
+    $importAirports->shouldNotReceive('execute');
+
+    $action = new class($importAirports) extends SyncAirportsAction
+    {
+        protected function createTemporaryFile(): false
+        {
+            return false;
+        }
+    };
+
+    expect(fn () => $action->execute())
+        ->toThrow(RuntimeException::class, 'Unable to create a temporary CSV file.');
+
+    Http::assertNothingSent();
+});
+
 it('downloads the CSV and delegates importing while closing the stream', function (): void {
     $url = 'https://davidmegginson.github.io/ourairports-data/airports.csv';
     $csv = airportCsv('1,EHAM,large_airport,Schiphol,52.3,4.7,-11,EU,NL,EHAM,AMS,');
