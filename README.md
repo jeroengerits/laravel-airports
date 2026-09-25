@@ -1,6 +1,6 @@
 # Laravel Airports
 
-Laravel package with data of airports worldwide.
+Laravel package with data of all airports in the world
 
 ## Requirements
 
