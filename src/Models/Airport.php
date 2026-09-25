@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace JeroenGerits\LaravelAirports\Models;
 
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
+use JeroenGerits\LaravelAirports\Builders\AirportBuilder;
 use JeroenGerits\LaravelAirports\Models\Factories\AirportFactory;
 
 /**
@@ -59,30 +59,19 @@ class Airport extends Model
         ];
     }
 
-    /**
-     * @param  Builder<Airport>  $query
-     * @return Builder<Airport>
-     */
-    public function scopeInCountry(Builder $query, string $country): Builder
+    public function newEloquentBuilder($query): AirportBuilder
     {
-        return $query->where($this->qualifyColumn('iso_country'), strtoupper(trim($country)));
+        return new AirportBuilder($query);
     }
 
-    /**
-     * @param  Builder<Airport>  $query
-     * @return Builder<Airport>
-     */
-    public function scopeOfType(Builder $query, string $type): Builder
+    public static function query(): AirportBuilder
     {
-        return $query->where($this->qualifyColumn('type'), $type);
-    }
+        $query = parent::query();
 
-    /**
-     * @param  Builder<Airport>  $query
-     * @return Builder<Airport>
-     */
-    public function scopeWithIataCode(Builder $query, string $code): Builder
-    {
-        return $query->where($this->qualifyColumn('iata_code'), strtoupper(trim($code)));
+        if (! $query instanceof AirportBuilder) {
+            throw new \LogicException('Airport queries must use AirportBuilder.');
+        }
+
+        return $query;
     }
 }
