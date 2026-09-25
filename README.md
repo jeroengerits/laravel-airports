@@ -13,6 +13,34 @@ Laravel package with data of all airports in the world
 composer require jeroengerits/laravel-airports
 ```
 
+## Sync airports
+
+Run migrations, then download and import the OurAirports CSV:
+
+```sh
+php artisan migrate
+php artisan airport:sync
+```
+
+The command downloads `https://davidmegginson.github.io/ourairports-data/airports.csv`
+and maps its `id` to `external_id`. Subsequent runs update matching airports while
+preserving their UUIDs. Empty values become `null`, and existing airports absent
+from the feed are retained. Invalid rows roll back the import.
+
+During package development, first create Testbench's persistent SQLite database
+and run migrations:
+
+```sh
+vendor/bin/testbench package:create-sqlite-db
+vendor/bin/testbench migrate
+vendor/bin/testbench airport:sync
+```
+
+The database setup is only needed once per Testbench installation. Without the
+SQLite file, Testbench falls back to an in-memory database that is discarded after
+each command, so running migrations separately will not prepare it for syncing.
+Subsequent syncs only require `vendor/bin/testbench airport:sync`.
+
 ## Development
 
 ```sh
