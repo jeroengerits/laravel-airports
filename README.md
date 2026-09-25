@@ -22,11 +22,6 @@ php artisan migrate
 php artisan airport:sync
 ```
 
-The command downloads `https://davidmegginson.github.io/ourairports-data/airports.csv`
-and maps its `id` to `external_id`. Subsequent runs update matching airports while
-preserving their UUIDs. Empty values become `null`, and existing airports absent
-from the feed are retained. Invalid rows roll back the import.
-
 During package development, first create Testbench's persistent SQLite database
 and run migrations:
 
@@ -40,6 +35,19 @@ The database setup is only needed once per Testbench installation. Without the
 SQLite file, Testbench falls back to an in-memory database that is discarded after
 each command, so running migrations separately will not prepare it for syncing.
 Subsequent syncs only require `vendor/bin/testbench airport:sync`.
+
+## Querying airports
+
+```php
+use JeroenGerits\LaravelAirports\Models\Airport;
+
+$airport = Airport::query()->withIataCode('AMS')->first();
+$airports = Airport::query()->inCountry('NL')->ofType('large_airport')->get();
+```
+
+Country and IATA filters accept lowercase codes and trim surrounding whitespace.
+Coordinates are cast to floats and elevation to an integer; missing values remain
+`null`.
 
 ## Development
 

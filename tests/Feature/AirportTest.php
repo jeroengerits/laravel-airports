@@ -8,6 +8,32 @@ use JeroenGerits\LaravelAirports\Models\Airport;
 
 uses(RefreshDatabase::class);
 
+it('filters airports by country and type using chainable scopes', function (): void {
+    $matching = Airport::factory()->create(['iso_country' => 'NL', 'type' => 'large_airport']);
+    Airport::factory()->create(['iso_country' => 'NL', 'type' => 'small_airport']);
+    Airport::factory()->create(['iso_country' => 'BE', 'type' => 'large_airport']);
+
+    expect(Airport::query()->inCountry(' nl ')->ofType('large_airport')->sole()->id)
+        ->toBe($matching->id);
+});
+
+it('finds airports by a normalized IATA code', function (): void {
+    $matching = Airport::factory()->create(['iata_code' => 'AMS']);
+    Airport::factory()->create(['iata_code' => 'BRU']);
+    Airport::factory()->create(['iata_code' => null]);
+
+    expect(Airport::query()->withIataCode(' ams ')->sole()->id)->toBe($matching->id)
+        ->and(Airport::query()->withIataCode('XXX')->exists())->toBeFalse();
+});
+
+it('preserves missing coordinates and elevation as null', function (): void {
+    $airport = Airport::create(['name' => 'Unknown Airport'])->refresh();
+
+    expect($airport->latitude_deg)->toBeNull()
+        ->and($airport->longitude_deg)->toBeNull()
+        ->and($airport->elevation_ft)->toBeNull();
+});
+
 it('creates and retrieves an airport with a UUID and numeric casts', function (): void {
     $airport = Airport::create([
         'external_id' => 'EHAM',
