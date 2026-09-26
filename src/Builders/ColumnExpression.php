@@ -8,7 +8,7 @@ use Illuminate\Contracts\Database\Query\Expression;
 use Illuminate\Database\Grammar;
 
 /** @internal SQL templates with grammar-quoted identifiers; values use query bindings. */
-final class ColumnExpression implements Expression
+final readonly class ColumnExpression implements Expression
 {
     /**
      * @param  literal-string  $template

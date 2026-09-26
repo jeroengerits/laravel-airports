@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace JeroenGerits\LaravelAirports\Actions;
 
+use Illuminate\Http\Client\ConnectionException;
+use Illuminate\Http\Client\RequestException;
 use Illuminate\Support\Facades\Http;
 use RuntimeException;
 
@@ -11,6 +13,11 @@ class SyncAirportsAction
 {
     public function __construct(private ImportAirportsAction $importAirports) {}
 
+    /**
+     * @throws RequestException
+     * @throws \Throwable
+     * @throws ConnectionException
+     */
     public function execute(): int
     {
         $stream = $this->createTemporaryFile();
